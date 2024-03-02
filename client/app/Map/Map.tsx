@@ -14,10 +14,54 @@ import { MapContainer, TileLayer, GeoJSON, Marker,Popup} from "react-leaflet";
 import L from 'leaflet';
 
 const icon = L.icon({ iconUrl: "/marker-icon.png" });
+const icon2 = L.icon({ iconUrl: "/marker-16.png" });
+
+const postData = async (url = '', data = {}) => {
+  try {
+    const response = await fetch(url, {
+      method: 'POST', // Specify the request method
+      headers: {
+        'Content-Type': 'application/json', // Specify the content type in the header
+      },
+      body: JSON.stringify(data), // Stringify the data
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // If you expect a JSON response:
+    const result = await response.json();
+    console.log('Data successfully sent to the server:', result);
+    // Handle the response data as needed
+    return result; // You can return the result (if needed)
+
+  } catch (error) {
+    console.error("Failed to send data:", error);
+    // Handle errors here
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const Map = (props) => {
   const [Map, setMap] = useState(null)
   const [LatLong, setLatLong] = useState([0,0])
   const [LatLongSet, setLatLongSet] = useState(false)
+  const resolution = 6; 
   
  
   const zoom = 10; // Initial zoom level
@@ -47,15 +91,20 @@ const Map = (props) => {
       
  
         
-        const resolution = 5; 
+        
         const h3Indices = h3p(data, resolution);
+        let curr_max = 0;
           h3Indices.features.forEach((feature, index) => {
+
+     
+            
           // Calculate density or retrieve it from another data source
           // This is just an example calculation
    
           const color = props.colors[index] ?? "red"; // Random density value for demonstration
           
           feature.properties.color = color;
+
         });
         setMap(h3Indices);
 
@@ -71,7 +120,15 @@ const Map = (props) => {
       // fillOpacity: 0.5 // Fill opacity
     };
   };
-
+  function cleanup(beforeImg,afterImg) {
+    let beforeTrash = uploadImage(beforeImg) 
+    let afterTrash = uploadImage(afterImg) 
+    if (afterTrash < beforeTrash){
+      postData('http://localhost:8080/colour/hexagon', {"hexID": h3p.geoToH3(LatLong[0], LatLong[1], resolution)});
+    }
+  
+    
+  }
   
 
   return (
@@ -79,19 +136,15 @@ const Map = (props) => {
       <h3>UK Hexagons</h3>
       {LatLongSet?
       <MapContainer center={LatLong} zoom={zoom} style={{ height: '20em', width: '20em' }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
-      />
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors"/>
       {/* Add the GeoJSON layer */}
       {Map ? <GeoJSON data={Map} key="j" style={hexStyle} />: "not working 😅"}
       <Marker position={LatLong}><Popup>You</Popup></Marker>
-      {
-        {props.events.map((item, index) => (
-          
-          <Marker position={LatLong}><Popup>You</Popup></Marker>
-        ))}
-      }
+      {/* {
+        props.events.map((trashLatLong, index) => (
+          <Marker key={index} position={trashLatLong} icon={icon2}><Popup>Trash Reported</Popup></Marker>
+        ))
+      } */}
     </MapContainer>
     :"Loading..."}
   
@@ -99,5 +152,34 @@ const Map = (props) => {
     </div>
   );
 };
+
+function uploadImage(file) {
+  // Get image somehow as file
+
+
+  const formData = new FormData();
+  formData.append('file', file); // Append the file to the 'file' key
+
+  fetch("http://127.0.0.1:8000/upload", { // Replace with your actual endpoint
+    method: 'POST',
+    body: formData, // Attach the FormData object
+    // Note: When using FormData, you don't manually set the Content-Type header
+    // The browser will automatically set it with the proper boundary
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.text(); // or .text() if the response is not JSON
+    }
+    throw new Error('Network response was not ok.');
+  })
+  .then(data => {
+    console.log('Success:', data);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
+
+
 
 export default Map;
