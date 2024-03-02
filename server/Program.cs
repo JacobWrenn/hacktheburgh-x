@@ -4,8 +4,6 @@ using Models;
 
 using MongoDB.Driver;
 
-using UserDB.DB;
-
 var connectionString = Environment.GetEnvironmentVariable("MONGODB_URI");
 if (connectionString == null) {
   Console.WriteLine("You must set your 'MONGODB_URI' environment variable. To learn how to set it, see https://www.mongodb.com/docs/drivers/csharp/current/quick-start/#set-your-connection-string");
@@ -27,16 +25,22 @@ builder.Services.AddSession(options => {
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
-
-// app.MapGet("/products", () => "Products");
-// app.MapGet("/products/{id}", (int id) => id);
-// app.MapGet("/users/{id}", (int id) => UsersDB.GetUser(id));
-// app.MapGet("/users", () => UsersDB.GetUsers());
-
 app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
 
 app.UseSession();
+
+app.Use(async (ctx, next) => {
+  var session = ctx.Session;
+  await session.LoadAsync();
+  var pathParts = ctx.Request.Path.ToString().Split("/");
+  if ((pathParts.Length > 0 && pathParts[1] == "user") || session.GetInt32("loggedIn") == 1) {
+    await next.Invoke();
+  }
+  else {
+    ctx.Response.StatusCode = 401;
+    await ctx.Response.CompleteAsync();
+  }
+});
 
 app.Run();

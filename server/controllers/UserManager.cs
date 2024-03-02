@@ -24,12 +24,14 @@ public class UserManager(IMongoDatabase db) {
   }
 
   public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    if (session.GetInt32("loggedIn") == 1) return true;
     var dbUser = await _users.Find(user => user.Username == user.Username).FirstOrDefaultAsync();
     var result = dbUser != null && BC.Verify(user.Password, dbUser.Password);
-    await ctx.Session.LoadAsync();
-    ctx.Session.SetInt32("loggedIn", result ? 1 : 0);
-    ctx.Session.SetString("username", dbUser!.Username);
-    await ctx.Session.CommitAsync();
+    session.SetInt32("loggedIn", result ? 1 : 0);
+    session.SetString("username", dbUser!.Username);
+    await session.CommitAsync();
     return result;
   }
 }
