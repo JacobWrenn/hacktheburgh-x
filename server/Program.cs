@@ -4,9 +4,11 @@ using Models;
 
 using MongoDB.Driver;
 
+using StackExchange.Redis;
+
 var connectionString = Environment.GetEnvironmentVariable("MONGODB_URI");
 if (connectionString == null) {
-  Console.WriteLine("You must set your 'MONGODB_URI' environment variable. To learn how to set it, see https://www.mongodb.com/docs/drivers/csharp/current/quick-start/#set-your-connection-string");
+  Console.WriteLine("You must set your 'MONGODB_URI' environment variable.");
   Environment.Exit(0);
 }
 var mongoClient = new MongoClient(connectionString);
@@ -17,9 +19,19 @@ var litterManager = new LitterManager(mongoDatabase);
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => { });
-builder.Services.AddDistributedMemoryCache();
+
+var redisUrl = Environment.GetEnvironmentVariable("REDIS_URL");
+var redisPass = Environment.GetEnvironmentVariable("REDIS_PASS");
+if (redisUrl == null || redisPass == null) {
+  Console.WriteLine("You must set your 'REDIS_URL' and 'REDIS_PASS' environment variables.");
+  Environment.Exit(0);
+}
+var redisConfigurationOptions = new ConfigurationOptions {
+  EndPoints = { { redisUrl } },
+  Password = redisPass
+};
+builder.Services.AddStackExchangeRedisCache(redisCacheConfig => redisCacheConfig.ConfigurationOptions = redisConfigurationOptions);
 builder.Services.AddSession(options => {
-  options.IdleTimeout = TimeSpan.FromSeconds(10);
   options.Cookie.HttpOnly = true;
   options.Cookie.IsEssential = true;
 });
@@ -31,7 +43,7 @@ app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.Authentic
 
 app.MapPost("/hexagon/init", () => litterManager.InitHexagons(15202));
 
-app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
+app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours2());
 
 app.UseSession();
 
