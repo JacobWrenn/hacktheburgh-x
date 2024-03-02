@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/jacob/Code/SusWarriorz/server/server.csproj": {}
+    "/Users/jacob/Code/hacktheburgh-x/server/server.csproj": {}
   },
   "projects": {
-    "/Users/jacob/Code/SusWarriorz/server/server.csproj": {
+    "/Users/jacob/Code/hacktheburgh-x/server/server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/jacob/Code/SusWarriorz/server/server.csproj",
+        "projectUniqueName": "/Users/jacob/Code/hacktheburgh-x/server/server.csproj",
         "projectName": "server",
-        "projectPath": "/Users/jacob/Code/SusWarriorz/server/server.csproj",
+        "projectPath": "/Users/jacob/Code/hacktheburgh-x/server/server.csproj",
         "packagesPath": "/Users/jacob/.nuget/packages/",
-        "outputPath": "/Users/jacob/Code/SusWarriorz/server/obj/",
+        "outputPath": "/Users/jacob/Code/hacktheburgh-x/server/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/jacob/.nuget/NuGet/NuGet.Config"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "NSRSHJ6Vm86Da1YUKb30L5YS1QP+/yniD0xSVzNErOfjIzJ2NIDwUOUwFpbfuJtAVApmw3b8JDRo33FPC0YGFw==",
+  "dgSpecHash": "p1PuVyyL4Hc7v4lO9jjJQuokl8dGLRGIu5cjZsoqL3cThUEc3huWWBLv1kSFZSvaYGW8dSuu0FkIh/savVaoew==",
   "success": true,
-  "projectFilePath": "/Users/jacob/Code/SusWarriorz/server/server.csproj",
+  "projectFilePath": "/Users/jacob/Code/hacktheburgh-x/server/server.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
