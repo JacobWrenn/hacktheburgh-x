@@ -1,5 +1,3 @@
-using BC = BCrypt.Net.BCrypt;
-
 using Models;
 
 using MongoDB.Driver;
@@ -8,6 +6,7 @@ namespace Controllers;
 
 public class LitterManager(IMongoDatabase db) {
     private readonly IMongoCollection<Hexagon> _hexagons = db.GetCollection<Hexagon>("hexagons");
+    private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
 
     // Routes to:
     // Add Hexagons to DB (for setup)
@@ -29,16 +28,7 @@ public class LitterManager(IMongoDatabase db) {
         var hexagons = await _hexagons.Find(_ => true).ToListAsync();
         string[] hexagonColours = new string[15202];
         foreach (var hexagon in hexagons) {
-            hexagonColours[hexagon.h3Index] = hexagon.ClanId.ToString();
-        }
-        return hexagonColours;
-    }
-
-    public async Task<string[]> GetHexagonColours() {
-        var hexagons = await _hexagons.Find(_ => true).ToListAsync();
-        string[] hexagonColours = new string[15202];
-        foreach (var hexagon in hexagons) {
-            hexagonColours[hexagon.h3Index] = hexagon.ClanId.ToString();
+            hexagonColours[hexagon.h3Index] = hexagon.ClanId?.ToString() ?? "";
         }
         return hexagonColours;
     }
