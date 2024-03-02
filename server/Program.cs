@@ -31,6 +31,8 @@ app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.Authentic
 
 app.MapPost("/hexagon/init", () => litterManager.InitHexagons(15202));
 
+app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
+
 app.UseSession();
 
 app.Use(async (ctx, next) => {

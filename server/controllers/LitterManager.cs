@@ -11,6 +11,7 @@ public class LitterManager(IMongoDatabase db) {
 
     // Routes to:
     // Add Hexagons to DB (for setup)
+    // Route to retrieve hexagon colours as an array of length 15202
 
     public async Task<bool> InitHexagons(int NumOfHexagons) {
         int i = 0;
@@ -22,6 +23,17 @@ public class LitterManager(IMongoDatabase db) {
         }
         return true;
     }
+
+    // Route to retrieve hexagon colours as an array of length 15202 from the clan colour
+    public async Task<string[]> GetHexagonColours() {
+        var hexagons = await _hexagons.Find(_ => true).ToListAsync();
+        string[] hexagonColours = new string[15202];
+        foreach (var hexagon in hexagons) {
+            hexagonColours[hexagon.h3Index] = hexagon.ClanId.ToString();
+        }
+        return hexagonColours;
+    }
+
 
     // public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
     //     var dbUser = await _users.Find(user => user.Username == user.Username).FirstOrDefaultAsync();
