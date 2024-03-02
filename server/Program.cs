@@ -13,6 +13,7 @@ var mongoClient = new MongoClient(connectionString);
 var mongoDatabase = mongoClient.GetDatabase("SustainabiltyWarriorz");
 
 var userManager = new UserManager(mongoDatabase);
+var litterManager = new LitterManager(mongoDatabase);
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => { });
@@ -27,6 +28,8 @@ var app = builder.Build();
 
 app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
+
+app.MapPost("/hexagon/init", () => litterManager.InitHexagons(15202));
 
 app.UseSession();
 
