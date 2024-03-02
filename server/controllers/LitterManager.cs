@@ -34,6 +34,32 @@ public class LitterManager(IMongoDatabase db) {
         return hexagonColours;
     }
 
+    public async Task<string[]> GetHexagonColours() {
+        var hexagons = await _hexagons.Find(_ => true).ToListAsync();
+        string[] hexagonColours = new string[15202];
+        foreach (var hexagon in hexagons) {
+            hexagonColours[hexagon.h3Index] = hexagon.ClanId.ToString();
+        }
+        return hexagonColours;
+    }
+
+    public async Task<string[]> GetHexagonColours2() {
+        var hexagons = await _hexagons.Find(_ => true).ToListAsync();
+        string[] hexagonColours = new string[15202];
+        
+        foreach (var hexagon in hexagons) {
+            // Get the colour of the ClanId in control
+            if (hexagon.ClanId == null) {
+                hexagonColours[hexagon.h3Index] = "#555555";
+            } else {
+                var clan = await _clans.Find(clan => clan.Id == hexagon.ClanId).FirstOrDefaultAsync();
+                hexagonColours[hexagon.h3Index] = clan.Colour;
+            }
+        }
+
+        return hexagonColours;
+    }
+
 
     // public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
     //     var dbUser = await _users.Find(user => user.Username == user.Username).FirstOrDefaultAsync();
