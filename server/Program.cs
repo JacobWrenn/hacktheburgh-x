@@ -16,6 +16,7 @@ var mongoDatabase = mongoClient.GetDatabase("SustainabiltyWarriorz");
 
 var userManager = new UserManager(mongoDatabase);
 var litterManager = new LitterManager(mongoDatabase);
+var clanManager = new ClanManager(mongoDatabase);
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => { });
@@ -41,9 +42,13 @@ var app = builder.Build();
 app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
 
-app.MapPost("/hexagon/init", () => litterManager.InitHexagons(15202));
+app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
+    // Get the user's clan
+    Clan userClan = await clanManager.GetClanForUser(ctx);
+    litterManager.SetHexagonColour(ctx, h3Index, userClan);
+});
 
-app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours2());
+app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
 
 app.UseSession();
 

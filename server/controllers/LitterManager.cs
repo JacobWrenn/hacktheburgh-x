@@ -50,6 +50,26 @@ public class LitterManager(IMongoDatabase db) {
         return hexagonColours;
     }
 
+    public async Task<bool> SetHexagonColour(HttpContext ctx, int h3Index, Clan userClan) {
+        var hexagon = await _hexagons.Find(hexagon => hexagon.h3Index == h3Index).FirstOrDefaultAsync();
+        if (hexagon == null) {
+            return false;
+        }
+
+        var ClanId = userClan?.Id;
+
+        if (ClanId == null) {
+            // Sets to unclaimed territory at the moment if the user is not part of a clan
+            hexagon.ClanId = null;
+            await _hexagons.ReplaceOneAsync(hex => hex.h3Index == h3Index, hexagon);
+            return true;
+        }
+
+        hexagon.ClanId = ClanId;
+        await _hexagons.ReplaceOneAsync(hex => hex.h3Index == h3Index, hexagon);
+        return true;
+    }
+
 
     // public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
     //     var dbUser = await _users.Find(user => user.Username == user.Username).FirstOrDefaultAsync();
