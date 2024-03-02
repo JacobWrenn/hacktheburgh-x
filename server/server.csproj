@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.24.0" />
+    <PackageReference Include="pocketken.H3" Version="4.0.0" />
   </ItemGroup>
 
 </Project>
