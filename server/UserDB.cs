@@ -1,26 +1,26 @@
 namespace UserDB.DB; 
 
-public record User {
+public record SpecialUser {
     public string Name {get; set;}
     public string Password {get; set;} 
     public int ? Id {get; set;}
 }
 
 public class UsersDB {
-    private static List<User> _users = new List<User>() {
-        new User{ Name="Will", Password="password", Id=0},
-        new User{ Name="Jacob", Password="password", Id=1}
+    private static List<SpecialUser> _users = new List<SpecialUser>() {
+        new SpecialUser{ Name="Will", Password="password", Id=0},
+        new SpecialUser{ Name="Jacob", Password="password", Id=1}
     };
 
-    public static List<User> GetUsers() {
+    public static List<SpecialUser> GetUsers() {
         return _users;
     } 
 
-    public static User ? GetUser(int id) {
+    public static SpecialUser ? GetUser(int id) {
         return _users.SingleOrDefault(User => User.Id == id);
     } 
 
-    public static User CreateUser(User user) {
+    public static SpecialUser CreateUser(SpecialUser user) {
         if (user.Id == null) {
             user.Id = 10;
         }
@@ -28,7 +28,7 @@ public class UsersDB {
         return user;
     }
 
-    public static User UpdateUser(User update) {
+    public static SpecialUser UpdateUser(SpecialUser update) {
         _users = _users.Select(user => {
             if (user.Id == update.Id) {
                 user.Name = update.Name;

@@ -22,6 +22,6 @@ app.MapGet("/products/{id}", (int id) => id);
 
 app.MapGet("/users/{id}", (int id) => UsersDB.GetUser(id));
 app.MapGet("/users", () => UsersDB.GetUsers());
-app.MapPost("/users", (User user) => UsersDB.CreateUser(user));
+app.MapPost("/users", (SpecialUser user) => UsersDB.CreateUser(user));
 
 app.Run();
