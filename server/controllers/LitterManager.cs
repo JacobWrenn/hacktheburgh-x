@@ -69,15 +69,4 @@ public class LitterManager(IMongoDatabase db) {
         await _hexagons.ReplaceOneAsync(hex => hex.h3Index == h3Index, hexagon);
         return true;
     }
-
-
-    // public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
-    //     var dbUser = await _users.Find(user => user.Username == user.Username).FirstOrDefaultAsync();
-    //     var result = dbUser != null && BC.Verify(user.Password, dbUser.Password);
-    //     await ctx.Session.LoadAsync();
-    //     ctx.Session.SetInt32("loggedIn", result ? 1 : 0);
-    //     ctx.Session.SetString("username", dbUser!.Username);
-    //     await ctx.Session.CommitAsync();
-    //     return result;
-    // }
 }

@@ -4,10 +4,21 @@ using Models;
 
 using MongoDB.Driver;
 
+using System.Text.Json;
+
 namespace Controllers;
+
+public class Profile {
+  public string? Username { get; set; }
+  public string? Clan { get; set; }
+  public int Points { get; set; }
+  public int? Rank { get; set; }
+}
 
 public class UserManager(IMongoDatabase db) {
   private readonly IMongoCollection<User> _users = db.GetCollection<User>("users");
+  private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
+  private readonly IMongoCollection<Event> _events = db.GetCollection<Event>("events");
 
   public async Task<bool> AddUser(User tempUser) {
     var users = await _users.Find(user => user.Username == tempUser.Username).FirstOrDefaultAsync();
@@ -33,5 +44,68 @@ public class UserManager(IMongoDatabase db) {
     session.SetString("username", dbUser!.Username);
     await session.CommitAsync();
     return result;
+  }
+
+  public async Task<string> GetProfile(HttpContext ctx) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    var username = session.GetString("username");
+
+    Profile EmptyProfile = new Profile{Username = "", Clan="", Points=0};
+    string EmptyProfileString = JsonSerializer.Serialize(EmptyProfile);
+
+    if (username == null) return EmptyProfileString;
+    var user = await _users.Find(user => user.Username == username).FirstOrDefaultAsync();
+
+    // Get user's clan
+    var clan = await _clans.Find(clan => clan.Id == user.ClanId).FirstOrDefaultAsync();
+    if (clan == null) return EmptyProfileString;
+
+    // Get the user's points
+    int UserPoints = 0;
+    var events = await _events.Find(e => e.UserId == user.Id).ToListAsync();
+    
+    foreach (var e in events) {
+      UserPoints += e.Points;
+    }
+
+    // Get the user's rank
+    var users = await _users.Find(_ => true).ToListAsync();
+
+    List<Profile> Profiles = new List<Profile>();
+
+    foreach (var u in users) {
+      int uPoints = 0;
+      var uEvents = await _events.Find(e => e.UserId == u.Id).ToListAsync();
+      
+      foreach (var e in uEvents) {
+        uPoints += e.Points;
+      }
+
+      Profiles.Add(new Profile{Username = u.Username, Points=uPoints});
+    }
+
+    // Sort the profiles
+    Profiles.Sort((a, b) => b.Points.CompareTo(a.Points));
+
+    // Fill in the ranks
+    for (int i = 0; i < Profiles.Count; i++) {
+      Profiles[i].Rank = i + 1;
+    }
+
+    // Find the rank of the user
+    int UserRank = 0;
+    for (int i = 0; i < Profiles.Count; i++) {
+      if (Profiles[i].Username == user.Username) {
+        UserRank = Profiles[i].Rank ?? 0;
+        break;
+      }
+    }
+
+    Profile UserProfile = new Profile{Username = user.Username, Clan=clan.Name, Points=UserPoints, Rank=UserRank};
+
+    // Return JSON
+    string jsonString = JsonSerializer.Serialize(UserProfile);
+    return jsonString;
   }
 }
