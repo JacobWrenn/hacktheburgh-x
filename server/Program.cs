@@ -45,6 +45,10 @@ app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
 
 // User Profile Routes
+app.MapGet("/user/profile", async (HttpContext ctx) => {
+  var UserProfile = await userManager.GetProfile(ctx);
+  return (object) UserProfile;
+});
 
 // Hexagon Routes
 app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
@@ -60,6 +64,7 @@ app.MapGet("/clan/points", async (HttpContext ctx) => {
   var ClanPoints = await clanManager.GetClanPoints(ctx);
   return (int) ClanPoints;
 });
+
 app.MapGet("/clan/leaderboard", async (HttpContext ctx) => {
   var LeaderboardList = await clanManager.GetClanLeaderboard(ctx);
   return (object) LeaderboardList;

@@ -46,20 +46,16 @@ public class UserManager(IMongoDatabase db) {
     return result;
   }
 
-  public async Task<string> GetProfile(HttpContext ctx) {
+  public async Task<Profile> GetProfile(HttpContext ctx) {
     var session = ctx.Session;
     await session.LoadAsync();
     var username = session.GetString("username");
 
-    Profile EmptyProfile = new Profile{Username = "", Clan="", Points=0};
-    string EmptyProfileString = JsonSerializer.Serialize(EmptyProfile);
-
-    if (username == null) return EmptyProfileString;
+    if (username == null) return new Profile{Username = "", Clan="", Points=0};
     var user = await _users.Find(user => user.Username == username).FirstOrDefaultAsync();
 
     // Get user's clan
     var clan = await _clans.Find(clan => clan.Id == user.ClanId).FirstOrDefaultAsync();
-    if (clan == null) return EmptyProfileString;
 
     // Get the user's points
     int UserPoints = 0;
@@ -102,10 +98,11 @@ public class UserManager(IMongoDatabase db) {
       }
     }
 
+    if (clan == null) return new Profile{Username = user.Username, Clan="", Points=UserPoints, Rank=UserRank};
+
     Profile UserProfile = new Profile{Username = user.Username, Clan=clan.Name, Points=UserPoints, Rank=UserRank};
 
     // Return JSON
-    string jsonString = JsonSerializer.Serialize(UserProfile);
-    return jsonString;
+    return UserProfile;
   }
 }
