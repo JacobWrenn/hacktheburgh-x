@@ -40,9 +40,11 @@ builder.Services.AddSession(options => {
 var app = builder.Build();
 app.UsePathBase("/api");
 
-// User Routes
+// User Auth Routes
 app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
+
+// User Profile Routes
 
 // Hexagon Routes
 app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
