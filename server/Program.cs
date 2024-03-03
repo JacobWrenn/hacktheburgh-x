@@ -38,6 +38,7 @@ builder.Services.AddSession(options => {
 });
 
 var app = builder.Build();
+app.UsePathBase("/api");
 
 // User Routes
 app.MapPost("/user", (User user) => userManager.AddUser(user));
@@ -61,14 +62,16 @@ app.UseSession();
 app.Use(async (ctx, next) => {
   var session = ctx.Session;
   await session.LoadAsync();
-  var pathParts = ctx.Request.Path.ToString().Split("/");
-  if ((pathParts.Length > 0 && pathParts[1] == "user") || session.GetInt32("loggedIn") == 1) {
-    await next.Invoke();
+  var path = ctx.Request.Path;
+  if (path.HasValue) {
+    var pathParts = ctx.Request.Path.ToString().Split("/");
+    if ((pathParts.Length > 0 && pathParts[1] == "user") || session.GetInt32("loggedIn") == 1) {
+      await next.Invoke();
+      return;
+    }
   }
-  else {
-    ctx.Response.StatusCode = 401;
-    await ctx.Response.CompleteAsync();
-  }
+  ctx.Response.StatusCode = 401;
+  await ctx.Response.CompleteAsync();
 });
 
 app.Run();
