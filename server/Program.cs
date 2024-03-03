@@ -35,7 +35,7 @@ builder.Services.AddStackExchangeRedisCache(redisCacheConfig => redisCacheConfig
 builder.Services.AddSession(options => {
   options.Cookie.HttpOnly = true;
   options.Cookie.IsEssential = true;
-  options.Cookie.Expiration = TimeSpan.FromDays(7);
+  options.IdleTimeout = TimeSpan.FromDays(1);
 });
 
 var app = builder.Build();
