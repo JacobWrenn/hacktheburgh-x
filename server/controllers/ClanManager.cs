@@ -4,6 +4,8 @@ using MongoDB.Bson;
 
 using MongoDB.Driver;
 
+using System.Text.Json;
+
 namespace Controllers;
 
 public class ClanRank {
@@ -56,7 +58,7 @@ public class ClanManager(IMongoDatabase db) {
 
   // Generate the clan leaderboard
   // Return [{rank: 1, guild: "Thomases mum", points: 5}, ...]
-  public async Task<List<ClanRank>> GetClanLeaderboard(HttpContext ctx) {
+  public async Task<string> GetClanLeaderboard(HttpContext ctx) {
     var session = ctx.Session;
     await session.LoadAsync();
     var user = await _users.Find(user => user.Username == session.GetString("username")).FirstAsync();
@@ -65,7 +67,8 @@ public class ClanManager(IMongoDatabase db) {
     List<ClanRank> ClanRanks = new List<ClanRank>();
 
     if (user == null || clans == null) {
-      return ClanRanks;
+      string json = JsonSerializer.Serialize(ClanRanks);
+      return json;
     }
 
     foreach (var clan in clans) {
@@ -95,7 +98,8 @@ public class ClanManager(IMongoDatabase db) {
     }
 
     // Return JSON array of clan leaderboards
-    return ClanRanks;
+    string jsonString = JsonSerializer.Serialize(ClanRanks);
+    return jsonString;
   }
 
 }
