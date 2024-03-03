@@ -60,6 +60,7 @@ app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
 // Clan Routes
 app.MapGet("/clan/points", (Delegate)clanManager.GetClanPoints);
 app.MapGet("/clan/leaderboard", (Delegate)clanManager.GetClanLeaderboard);
+app.MapGet("/clan/list", clanManager.GetClanNames);
 
 app.UseSession();
 
