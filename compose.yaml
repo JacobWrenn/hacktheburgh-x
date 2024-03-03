@@ -1,0 +1,31 @@
+services:
+  client:
+    build:
+      context: ./client
+    networks:
+      - internal
+    environment:
+      NODE_ENV: production
+  server:
+    build:
+      context: ./server
+      target: final
+    networks:
+      - internal
+    env_file:
+      - ./server/.env
+  detector:
+    build:
+      context: ./detector
+    networks:
+      - internal
+  proxy:
+    build:
+      context: ./proxy
+    networks:
+      - internal
+    ports:
+      - 8000:8000
+
+networks:
+  internal:
