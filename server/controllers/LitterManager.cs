@@ -4,6 +4,10 @@ using MongoDB.Driver;
 
 namespace Controllers;
 
+public class HexData {
+    public int MatchingHexagon { get; set; }
+}
+
 public class LitterManager(IMongoDatabase db) {
     private readonly IMongoCollection<Hexagon> _hexagons = db.GetCollection<Hexagon>("hexagons");
     private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
@@ -50,8 +54,8 @@ public class LitterManager(IMongoDatabase db) {
         return hexagonColours;
     }
 
-    public async Task<bool> SetHexagonColour(HttpContext ctx, int h3Index, Clan userClan) {
-        var hexagon = await _hexagons.Find(hexagon => hexagon.h3Index == h3Index).FirstOrDefaultAsync();
+    public async Task<bool> SetHexagonColour(HttpContext ctx, HexData hexData, Clan userClan) {
+        var hexagon = await _hexagons.Find(hexagon => hexagon.h3Index == hexData.MatchingHexagon).FirstOrDefaultAsync();
         if (hexagon == null) {
             return false;
         }
@@ -61,12 +65,12 @@ public class LitterManager(IMongoDatabase db) {
         if (ClanId == null) {
             // Sets to unclaimed territory at the moment if the user is not part of a clan
             hexagon.ClanId = null;
-            await _hexagons.ReplaceOneAsync(hex => hex.h3Index == h3Index, hexagon);
+            await _hexagons.ReplaceOneAsync(hex => hex.h3Index == hexData.MatchingHexagon, hexagon);
             return true;
         }
 
         hexagon.ClanId = ClanId;
-        await _hexagons.ReplaceOneAsync(hex => hex.h3Index == h3Index, hexagon);
+        await _hexagons.ReplaceOneAsync(hex => hex.h3Index == hexData.MatchingHexagon, hexagon);
         return true;
     }
 }

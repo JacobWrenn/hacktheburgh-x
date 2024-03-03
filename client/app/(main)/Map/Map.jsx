@@ -4,6 +4,7 @@ import React, {useState, useEffect, memo} from "react";
 import * as h3 from 'h3-js';
 import * as h3p from "h3-polyfill";
 import {geoToH3} from 'h3-js/legacy'
+
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup} from "react-leaflet";
 
@@ -25,6 +26,19 @@ const Map = (props) => {
  
   const zoom = 10; // Initial zoom level
 
+  function calculateCentroid(points) {
+    let sumLat = 0;
+    let sumLng = 0;
+    const n = points.length; // Should be 6 for a hexagon
+    for (let i = 0; i < n; i++) {
+      sumLat += points[i][0]; // Sum latitudes
+      sumLng += points[i][1]; // Sum longitudes
+    }
+    const centroidLat = sumLat / n;
+    const centroidLng = sumLng / n;
+    return [centroidLat, centroidLng]; // Return centroid as [latitude, longitude]
+  }
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(success, error);
@@ -44,19 +58,8 @@ const Map = (props) => {
       console.log("Unable to retrieve your location");
     }
 
-    function cleanup(beforeImg,afterImg) {
-      let beforeTrash = uploadImage(beforeImg);
-      let afterTrash = uploadImage(afterImg);
-
-      // Hardcoding for testing purposes
-      beforeTrash = 1;
-      afterTrash = 0;
-
-      if (afterTrash < beforeTrash) {
-        api.post(`/hexagon/colour?h3Index=${geoToH3(LatLong[0], LatLong[1], resolution)}`)
-      }
-    }
-    cleanup();
+    
+    
 
     // Load your GeoJSON data (for example, from the public folder)
     fetch('/uk.json')
@@ -68,11 +71,18 @@ const Map = (props) => {
           // Calculate density or retrieve it from another data source
           // This is just an example calculation
    
-          const color = props.colors[index] ?? "red"; // Random density value for demonstration
+          let color = props.colors[index] ?? "red"; // Random density value for demonstration
           
           feature.properties.color = color;
+      
+          let centroid = calculateCentroid(feature.geometry.coordinates[0].slice(0,-1))
+          // Add the H3 index as a property to the hexagon
+          feature.properties.centroid = centroid;
+       
 
         });
+       
+        // Now geoJson contains hexagons with their respective H3 index as a property
         setMap(h3Indices);
 
       });
@@ -87,6 +97,30 @@ const Map = (props) => {
       // fillOpacity: 0.5 // Fill opacity
     };
   };
+  function cleanup(beforeImg,afterImg) {
+    let beforeTrash = uploadImage(beforeImg);
+    let afterTrash = uploadImage(afterImg);
+
+    // Hardcoding for testing purposes
+    beforeTrash = 1;
+    afterTrash = 0;
+
+    if (afterTrash < beforeTrash) {
+      let closestDist = Number.MAX_SAFE_INTEGER
+      let matchingHexagon = 0
+      Map.features.forEach((feature,index) => {
+        let lat = LatLong[1]
+        let long = LatLong[0]
+        let dist = Math.sqrt(((lat - feature.properties.centroid[0]) ** 2) + ((long - feature.properties.centroid[1]) ** 2))
+        if (dist < closestDist) {
+          closestDist = dist
+          matchingHexagon = index
+        }
+      })
+   
+      api.post(`/hexagon/colour`, {MatchingHexagon: matchingHexagon})
+    }
+  }
   
   return (
     <div>
@@ -104,6 +138,10 @@ const Map = (props) => {
       } */}
     </MapContainer>
     :<p className="w-full text-center">Loading...</p>}
+    <button onClick={() => cleanup(1,2)}>
+      click
+      
+    </button>
   
     
     </div>

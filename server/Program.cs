@@ -54,10 +54,10 @@ app.MapGet("/user/profile", async (HttpContext ctx) => {
 });
 
 // Hexagon Routes
-app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
+app.MapPost("/hexagon/colour", async (HttpContext ctx, HexData hexData) => {
   // Get the user's clan
   Clan userClan = await clanManager.GetClanForUser(ctx);
-  litterManager.SetHexagonColour(ctx, h3Index, userClan);
+  litterManager.SetHexagonColour(ctx, hexData, userClan);
 });
 
 app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours2());
