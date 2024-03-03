@@ -1,15 +1,16 @@
 "use client"; 
 import React, {useState, useEffect, memo} from "react";
 
-import axios from 'axios';
-
+import * as h3 from 'h3-js';
 import * as h3p from "h3-polyfill";
+import {geoToH3} from 'h3-js/legacy'
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup} from "react-leaflet";
 
 // import Region from './Region'
 // import {useColour} from './ColourContext'
 import L from 'leaflet';
+import api from "@/app/api";
 
 const icon = L.icon({ iconUrl: "/marker-icon.png" });
 const icon2 = L.icon({ iconUrl: "/marker-16.png" });
@@ -52,9 +53,7 @@ const Map = (props) => {
       afterTrash = 0;
 
       if (afterTrash < beforeTrash) {
-        axios.post("/hexagon/colour", {
-          "h3Index": h3p.geoToH3(LatLong[0], LatLong[1], resolution)
-        })
+        api.post(`/hexagon/colour?h3Index=${geoToH3(LatLong[0], LatLong[1], resolution)}`)
       }
     }
     cleanup();
