@@ -70,6 +70,12 @@ app.MapGet("/clan/list", clanManager.GetClanNames);
 // Add user to clan
 app.MapPost("/user/add", async (HttpContext ctx, string name) => await userManager.AddUserToClan(ctx, name));
 
+// Clan Ranking
+app.MapGet("/clan/ranking", async (HttpContext ctx) => {
+  var ranking = await clanManager.GetClanRank(ctx);
+  return (object) ranking;
+});
+
 app.UseSession();
 
 app.Use(async (ctx, next) => {

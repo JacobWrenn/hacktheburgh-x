@@ -111,4 +111,52 @@ public class ClanManager(IMongoDatabase db) {
     return clanNames;
   }
 
+  public async Task<int?> GetClanRank(HttpContext ctx) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    var clans = await _clans.Find(_ => true).ToListAsync();
+
+    List<ClanRank> ClanRanks = new List<ClanRank>();
+
+    foreach (var clan in clans) {
+      // Add the points of every member
+      var clanPoints = 0;
+      var clanMembers = await _users.Find(user => user.ClanId == clan.Id).ToListAsync();
+
+      if (clanMembers != null) {
+        foreach (var member in clanMembers) {
+          var events = await _events.Find(e => e.UserId == member.Id).ToListAsync();
+          
+          foreach (var e in events) {
+            clanPoints += e.Points;
+          }
+        }
+      }
+
+      ClanRanks.Add(new ClanRank{Rank = null, Guild=clan.Name, Points=clanPoints});
+    }
+
+    // Sort the array by points
+    ClanRanks.Sort((a, b) => b.Points.CompareTo(a.Points));
+
+    // Relabel the ranks
+    for (int i = 0; i < ClanRanks.Count; i++) {
+      ClanRanks[i].Rank = i + 1;
+    }
+
+    // Find the clan of the user
+    var user = await _users.Find(user => user.Username == session.GetString("username")).FirstAsync();
+    var UserClan = await _clans.Find(clan => user.ClanId == clan.Id).FirstAsync();
+
+    int? Ranking = 0;
+    foreach (var ClanRank in ClanRanks) {
+      if (UserClan.Name == ClanRank.Guild) {
+        Ranking = ClanRank.Rank;
+      }
+    }
+
+    // Return the ranking
+    return Ranking;
+  }
+
 }
