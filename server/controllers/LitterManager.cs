@@ -40,12 +40,13 @@ public class LitterManager(IMongoDatabase db) {
     public async Task<string[]> GetHexagonColours2() {
         var hexagons = await _hexagons.Find(_ => true).ToListAsync();
         string[] hexagonColours = new string[15202];
-        
+
         foreach (var hexagon in hexagons) {
             // Get the colour of the ClanId in control
             if (hexagon.ClanId == null) {
                 hexagonColours[hexagon.h3Index] = "#555555";
-            } else {
+            }
+            else {
                 var clan = await _clans.Find(clan => clan.Id == hexagon.ClanId).FirstOrDefaultAsync();
                 hexagonColours[hexagon.h3Index] = clan.Colour;
             }
@@ -72,5 +73,13 @@ public class LitterManager(IMongoDatabase db) {
         hexagon.ClanId = ClanId;
         await _hexagons.ReplaceOneAsync(hex => hex.h3Index == hexData.MatchingHexagon, hexagon);
         return true;
+    }
+
+    public async Task ClearColours() {
+        var hexes = await _hexagons.FindAsync(x => x.ClanId != null);
+        foreach (var hex in hexes.ToList()) {
+            hex.ClanId = null;
+            await _hexagons.ReplaceOneAsync(x => x.Id == hex.Id, hex);
+        }
     }
 }

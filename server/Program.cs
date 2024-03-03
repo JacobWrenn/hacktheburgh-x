@@ -60,7 +60,8 @@ app.MapPost("/hexagon/colour", async (HttpContext ctx, HexData hexData) => {
   litterManager.SetHexagonColour(ctx, hexData, userClan);
 });
 
-app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours2());
+app.MapGet("/hexagon/colours", litterManager.GetHexagonColours2);
+app.MapGet("/hexagons/clear", litterManager.ClearColours);
 
 // Clan Routes
 app.MapGet("/clan/points", (Delegate)clanManager.GetClanPoints);
