@@ -1,10 +1,11 @@
 "use client"; 
 import React, {useState, useEffect, memo} from "react";
 
+import axios from 'axios';
 
 import * as h3p from "h3-polyfill";
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, GeoJSON, Marker,Popup} from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup} from "react-leaflet";
 
 // import Region from './Region'
 // import {useColour} from './ColourContext'
@@ -13,52 +14,12 @@ import L from 'leaflet';
 const icon = L.icon({ iconUrl: "/marker-icon.png" });
 const icon2 = L.icon({ iconUrl: "/marker-16.png" });
 
-const postData = async (url = '', data = {}) => {
-  try {
-    const response = await fetch(url, {
-      method: 'POST', // Specify the request method
-      headers: {
-        'Content-Type': 'application/json', // Specify the content type in the header
-      },
-      body: JSON.stringify(data), // Stringify the data
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    // If you expect a JSON response:
-    const result = await response.json();
-    console.log('Data successfully sent to the server:', result);
-    // Handle the response data as needed
-    return result; // You can return the result (if needed)
-
-  } catch (error) {
-    console.error("Failed to send data:", error);
-    // Handle errors here
-  }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const Map = (props) => {
   const [Map, setMap] = useState(null)
   const [LatLong, setLatLong] = useState([0,0])
   const [LatLongSet, setLatLongSet] = useState(false)
-  const resolution = 6; 
+  const resolution = 6;
   
  
   const zoom = 10; // Initial zoom level
@@ -81,20 +42,30 @@ const Map = (props) => {
     function error() {
       console.log("Unable to retrieve your location");
     }
+
+    function cleanup(beforeImg,afterImg) {
+      let beforeTrash = uploadImage(beforeImg);
+      let afterTrash = uploadImage(afterImg);
+
+      // Hardcoding for testing purposes
+      beforeTrash = 1;
+      afterTrash = 0;
+
+      if (afterTrash < beforeTrash) {
+        axios.post("/hexagon/colour", {
+          "h3Index": h3p.geoToH3(LatLong[0], LatLong[1], resolution)
+        })
+      }
+    }
+    cleanup();
+
     // Load your GeoJSON data (for example, from the public folder)
     fetch('/uk.json')
       .then(response => response.json())
       .then(data => {
-      
- 
-        
-        
         const h3Indices = h3p(data, resolution);
         let curr_max = 0;
           h3Indices.features.forEach((feature, index) => {
-
-     
-            
           // Calculate density or retrieve it from another data source
           // This is just an example calculation
    
@@ -117,17 +88,7 @@ const Map = (props) => {
       // fillOpacity: 0.5 // Fill opacity
     };
   };
-  function cleanup(beforeImg,afterImg) {
-    let beforeTrash = uploadImage(beforeImg) 
-    let afterTrash = uploadImage(afterImg) 
-    if (afterTrash < beforeTrash){
-      postData('/api/colour/hexagon', {"hexID": h3p.geoToH3(LatLong[0], LatLong[1], resolution)});
-    }
   
-    
-  }
-  
-
   return (
     <div>
       

@@ -59,12 +59,15 @@ app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
   litterManager.SetHexagonColour(ctx, h3Index, userClan);
 });
 
-app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
+app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours2());
 
 // Clan Routes
 app.MapGet("/clan/points", (Delegate)clanManager.GetClanPoints);
 app.MapGet("/clan/leaderboard", (Delegate)clanManager.GetClanLeaderboard);
 app.MapGet("/clan/list", clanManager.GetClanNames);
+
+// Add user to clan
+app.MapPost("/user/add", async (HttpContext ctx, string name) => await userManager.AddUserToClan(ctx, name));
 
 app.UseSession();
 
