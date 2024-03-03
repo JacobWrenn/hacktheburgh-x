@@ -20,7 +20,7 @@ public class UserManager(IMongoDatabase db) {
   private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
   private readonly IMongoCollection<Event> _events = db.GetCollection<Event>("events");
 
-  public async Task<bool> AddUser(User tempUser) {
+  public async Task<bool> AddUser(User tempUser, HttpContext ctx) {
     var users = await _users.Find(user => user.Username == tempUser.Username).FirstOrDefaultAsync();
     if (users != null) {
       return false;
@@ -31,7 +31,7 @@ public class UserManager(IMongoDatabase db) {
       Username = tempUser.Username,
       Password = passwordHash
     });
-    return true;
+    return await AuthenticateUser(tempUser, ctx);
   }
 
   public async Task<bool> AuthenticateUser(User user, HttpContext ctx) {
@@ -46,12 +46,25 @@ public class UserManager(IMongoDatabase db) {
     return result;
   }
 
+  public async Task<bool> IsLoggedIn(HttpContext ctx) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    return session.GetInt32("loggedIn") == 1;
+  }
+
+  public async Task LogOut(HttpContext ctx) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    session.Clear();
+    await session.CommitAsync();
+  }
+
   public async Task<string> GetProfile(HttpContext ctx) {
     var session = ctx.Session;
     await session.LoadAsync();
     var username = session.GetString("username");
 
-    Profile EmptyProfile = new Profile{Username = "", Clan="", Points=0};
+    Profile EmptyProfile = new Profile { Username = "", Clan = "", Points = 0 };
     string EmptyProfileString = JsonSerializer.Serialize(EmptyProfile);
 
     if (username == null) return EmptyProfileString;
@@ -64,7 +77,7 @@ public class UserManager(IMongoDatabase db) {
     // Get the user's points
     int UserPoints = 0;
     var events = await _events.Find(e => e.UserId == user.Id).ToListAsync();
-    
+
     foreach (var e in events) {
       UserPoints += e.Points;
     }
@@ -77,12 +90,12 @@ public class UserManager(IMongoDatabase db) {
     foreach (var u in users) {
       int uPoints = 0;
       var uEvents = await _events.Find(e => e.UserId == u.Id).ToListAsync();
-      
+
       foreach (var e in uEvents) {
         uPoints += e.Points;
       }
 
-      Profiles.Add(new Profile{Username = u.Username, Points=uPoints});
+      Profiles.Add(new Profile { Username = u.Username, Points = uPoints });
     }
 
     // Sort the profiles
@@ -102,7 +115,7 @@ public class UserManager(IMongoDatabase db) {
       }
     }
 
-    Profile UserProfile = new Profile{Username = user.Username, Clan=clan.Name, Points=UserPoints, Rank=UserRank};
+    Profile UserProfile = new Profile { Username = user.Username, Clan = clan.Name, Points = UserPoints, Rank = UserRank };
 
     // Return JSON
     string jsonString = JsonSerializer.Serialize(UserProfile);
