@@ -40,9 +40,11 @@ builder.Services.AddSession(options => {
 var app = builder.Build();
 app.UsePathBase("/api");
 
+// User Routes
 app.MapPost("/user", (User user) => userManager.AddUser(user));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
 
+// Hexagon Routes
 app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
     // Get the user's clan
     Clan userClan = await clanManager.GetClanForUser(ctx);
@@ -50,6 +52,10 @@ app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
 });
 
 app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
+
+// Clan Routes
+app.MapGet("/clan/points", (HttpContext ctx) => clanManager.GetClanPoints(ctx));
+app.MapGet("/clan/leaderboard", (HttpContext ctx) => clanManager.GetClanLeaderboard(ctx));
 
 app.UseSession();
 
