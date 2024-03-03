@@ -118,4 +118,19 @@ public class UserManager(IMongoDatabase db) {
     // Return JSON
     return UserProfile;
   }
+
+  public async Task<bool> AddUserToClan(HttpContext ctx, string ClanName) {
+    var session = ctx.Session;
+    await session.LoadAsync();
+    var username = session.GetString("username");
+    var user = await _users.Find(user => user.Username == username).FirstOrDefaultAsync();
+    if (user == null) return false;
+
+    var clan = await _clans.Find(clan => clan.Name == ClanName).FirstOrDefaultAsync();
+    if (clan == null) return false;
+
+    user.ClanId = clan.Id;
+    await _users.ReplaceOneAsync(u => u.Username == username, user);
+    return true;
+  }
 }

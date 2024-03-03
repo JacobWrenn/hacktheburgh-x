@@ -1,10 +1,9 @@
 "use client"; 
 import React, {useState, useEffect, memo} from "react";
 
-
 import * as h3p from "h3-polyfill";
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, GeoJSON, Marker,Popup} from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup} from "react-leaflet";
 
 // import Region from './Region'
 // import {useColour} from './ColourContext'
@@ -43,17 +42,6 @@ const postData = async (url = '', data = {}) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 const Map = (props) => {
   const [Map, setMap] = useState(null)
   const [LatLong, setLatLong] = useState([0,0])
@@ -81,20 +69,23 @@ const Map = (props) => {
     function error() {
       console.log("Unable to retrieve your location");
     }
+
+    function cleanup(beforeImg,afterImg) {
+      let beforeTrash = uploadImage(beforeImg) 
+      let afterTrash = uploadImage(afterImg) 
+      if (afterTrash < beforeTrash){
+        postData('/api/hexagon/colour', {"hexID": h3p.geoToH3(LatLong[0], LatLong[1], resolution)});
+      }
+    }
+    cleanup();
+    
     // Load your GeoJSON data (for example, from the public folder)
     fetch('/uk.json')
       .then(response => response.json())
       .then(data => {
-      
- 
-        
-        
         const h3Indices = h3p(data, resolution);
         let curr_max = 0;
           h3Indices.features.forEach((feature, index) => {
-
-     
-            
           // Calculate density or retrieve it from another data source
           // This is just an example calculation
    
@@ -117,17 +108,7 @@ const Map = (props) => {
       // fillOpacity: 0.5 // Fill opacity
     };
   };
-  function cleanup(beforeImg,afterImg) {
-    let beforeTrash = uploadImage(beforeImg) 
-    let afterTrash = uploadImage(afterImg) 
-    if (afterTrash < beforeTrash){
-      postData('/api/colour/hexagon', {"hexID": h3p.geoToH3(LatLong[0], LatLong[1], resolution)});
-    }
   
-    
-  }
-  
-
   return (
     <div>
       

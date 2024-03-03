@@ -1,13 +1,21 @@
+"use client";
+
 import dynamic from "next/dynamic";
+
+import useSWR from 'swr'
 
 const Map = dynamic(() => import("./Map/Map"), {
   ssr: false,
 });
 
 export default function Home() {
+  const { data, error, isLoading } = useSWR("/hexagon/colours");
+
+  if (isLoading) return <></>;
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-cyan-50 to-cyan-100">
-      <Map colors={new Array(10000).fill("gray")}></Map>
+      <Map colors={data}></Map>
       <ul className="flex justify-around text-gray-700 p-10 pt-20">
         <li className="text-gray-700">Points</li>
         <li>Rank</li>
