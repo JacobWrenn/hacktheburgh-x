@@ -12,7 +12,7 @@ jobs:
     steps:
     - run: |
         cd /home/actions/hacktheburgh-x
-        docker compose -f compose-prod.yml down
+        docker compose -f compose-prod.yaml down
         git fetch
         git pull
-        docker compose -f compose-prod.yml up -d
+        docker compose -f compose-prod.yaml up --build -d
