@@ -16,6 +16,8 @@ public class ClanManager(IMongoDatabase db) {
   private readonly IMongoCollection<User> _users = db.GetCollection<User>("users");
   private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
   private readonly IMongoCollection<Event> _events = db.GetCollection<Event>("events");
+  private readonly IMongoCollection<Hexagon> _hexagons = db.GetCollection<Hexagon>("hexagons");
+  
 
   public async Task<Clan?> GetClanForUser(HttpContext ctx) {
     var session = ctx.Session;
@@ -73,20 +75,10 @@ public class ClanManager(IMongoDatabase db) {
 
     foreach (var clan in clans) {
       // Add the points of every member
-      var clanPoints = 0;
-      var clanMembers = await _users.Find(user => user.ClanId == clan.Id).ToListAsync();
+      // No, instead total up the tiles
+      var hexagons = await _hexagons.Find(h => h.ClanId == clan.Id).ToListAsync();
 
-      if (clanMembers != null) {
-        foreach (var member in clanMembers) {
-          var events = await _events.Find(e => e.UserId == member.Id).ToListAsync();
-          
-          foreach (var e in events) {
-            clanPoints += e.Points;
-          }
-        }
-      }
-
-      ClanRanks.Add(new ClanRank{Rank = null, Guild=clan.Name, Points=clanPoints});
+      ClanRanks.Add(new ClanRank{Rank = null, Guild=clan.Name, Points=hexagons.Count});
     }
 
     // Sort the array by points
