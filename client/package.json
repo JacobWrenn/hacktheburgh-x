@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
+    "axios": "^1.6.7",
     "h3-js": "^4.1.0",
     "h3-polyfill": "^1.2.0",
     "leaflet": "^1.9.4",
