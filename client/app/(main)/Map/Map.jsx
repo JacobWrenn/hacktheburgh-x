@@ -103,7 +103,7 @@ const Map = (props) => {
         ))
       } */}
     </MapContainer>
-    :"Loading..."}
+    :<p className="w-full text-center">Loading...</p>}
   
     
     </div>
