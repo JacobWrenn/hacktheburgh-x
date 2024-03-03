@@ -15,4 +15,4 @@ jobs:
         docker compose -f compose-prod.yaml down
         git fetch
         git pull
-        docker compose -f compose-prod.yaml up -d
+        docker compose -f compose-prod.yaml up --build -d
