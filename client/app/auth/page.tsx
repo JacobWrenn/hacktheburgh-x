@@ -1,19 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import useSwr from "swr";
 import api from "../api";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default function Auth() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { data, error, isLoading, mutate } = useSwr("/api/user");
 
   async function login() {
     await api.post("/user/login", { Username: username, Password: password });
+    mutate();
   }
 
   async function register() {
     await api.post("/user", { Username: username, Password: password });
+    mutate();
   }
+
+  if (isLoading) return <></>;
+
+  if (!error && data) return redirect("/");
 
   return (
     <div className="min-h-screen flex items-center justify-center w-full bg-gradient-to-b from-cyan-50 via-cyan-100 to-slate-400">

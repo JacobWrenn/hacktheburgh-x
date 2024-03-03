@@ -41,8 +41,10 @@ var app = builder.Build();
 app.UsePathBase("/api");
 
 // User Auth Routes
-app.MapPost("/user", (User user) => userManager.AddUser(user));
+app.MapPost("/user", (HttpContext ctx, User user) => userManager.AddUser(user, ctx));
 app.MapPost("/user/login", (HttpContext ctx, User user) => userManager.AuthenticateUser(user, ctx));
+app.MapGet("/user", (Delegate)userManager.IsLoggedIn);
+app.MapGet("/logout", userManager.LogOut);
 
 // User Profile Routes
 app.MapGet("/user/profile", async (HttpContext ctx) => {
@@ -52,24 +54,17 @@ app.MapGet("/user/profile", async (HttpContext ctx) => {
 
 // Hexagon Routes
 app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
-    // Get the user's clan
-    Clan userClan = await clanManager.GetClanForUser(ctx);
-    litterManager.SetHexagonColour(ctx, h3Index, userClan);
+  // Get the user's clan
+  Clan userClan = await clanManager.GetClanForUser(ctx);
+  litterManager.SetHexagonColour(ctx, h3Index, userClan);
 });
 
 app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
 
 // Clan Routes
-app.MapGet("/clan/points", async (HttpContext ctx) => {
-  var ClanPoints = await clanManager.GetClanPoints(ctx);
-  return (int) ClanPoints;
-});
-
-app.MapGet("/clan/leaderboard", async (HttpContext ctx) => {
-  var LeaderboardList = await clanManager.GetClanLeaderboard(ctx);
-  return (object) LeaderboardList;
-});
-app.MapGet("/clan/list", async () => await clanManager.GetClanNames());
+app.MapGet("/clan/points", (Delegate)clanManager.GetClanPoints);
+app.MapGet("/clan/leaderboard", (Delegate)clanManager.GetClanLeaderboard);
+app.MapGet("/clan/list", clanManager.GetClanNames);
 
 app.UseSession();
 
