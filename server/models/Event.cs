@@ -10,5 +10,5 @@ public class Event {
 
   public int Points { get; set; }
 
-  public ObjectId UserId { get; set; }
+  public ObjectId? UserId { get; set; }
 }

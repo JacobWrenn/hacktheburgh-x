@@ -6,11 +6,14 @@ namespace Controllers;
 
 public class HexData {
     public int MatchingHexagon { get; set; }
+    public int? Points { get; set; }
 }
 
 public class LitterManager(IMongoDatabase db) {
     private readonly IMongoCollection<Hexagon> _hexagons = db.GetCollection<Hexagon>("hexagons");
     private readonly IMongoCollection<Clan> _clans = db.GetCollection<Clan>("clans");
+    private readonly IMongoCollection<User> _users = db.GetCollection<User>("users");
+    private readonly IMongoCollection<Event> _events = db.GetCollection<Event>("events");
 
     // Routes to:
     // Add Hexagons to DB (for setup)
@@ -56,6 +59,19 @@ public class LitterManager(IMongoDatabase db) {
     }
 
     public async Task<bool> SetHexagonColour(HttpContext ctx, HexData hexData, Clan userClan) {
+        var session = ctx.Session;
+        await session.LoadAsync();
+        var username = session.GetString("username");
+        var user = await _users.Find(user => user.Username == username).FirstOrDefaultAsync();
+
+        // Add an event
+        if (hexData.Points != null) {
+            await _events.InsertOneAsync(new Event {
+                Points = (int) hexData.Points,
+                UserId = user.Id
+            });
+        }
+
         var hexagon = await _hexagons.Find(hexagon => hexagon.h3Index == hexData.MatchingHexagon).FirstOrDefaultAsync();
         if (hexagon == null) {
             return false;
