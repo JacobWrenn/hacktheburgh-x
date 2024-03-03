@@ -10,5 +10,5 @@ public class Clan {
 
     public string Name { get; set; }
     public string Colour { get; set; }
-    public ObjectId LeaderId { get; set; }
+    public ObjectId? LeaderId { get; set; }
 }

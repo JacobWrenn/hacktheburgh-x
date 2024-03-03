@@ -102,4 +102,14 @@ public class ClanManager(IMongoDatabase db) {
     return jsonString;
   }
 
+  public async Task<List<string>> GetClanNames() {
+    var clans = await _clans.Find(_ => true).ToListAsync();
+    
+    List<string> clanNames = new List<string>();
+    foreach (var clan in clans) {
+      clanNames.Add(clan.Name);
+    }
+    return clanNames;
+  }
+
 }
