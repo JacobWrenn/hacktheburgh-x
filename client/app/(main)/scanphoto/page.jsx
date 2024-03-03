@@ -4,12 +4,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import * as h3p from "h3-polyfill";
 import api from "@/app/api";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [file1, setFile1] = useState(null);
   const [file2, setFile2] = useState(null);
   const [LatLong, setLatLong] = useState([0, 0]);
   const [Map, setMap] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -76,10 +78,11 @@ export default function Home() {
 
     const num1 = parseInt(await submit(file1));
     const num2 = parseInt(await submit(file2));
-    api.post(`/hexagon/colour`, {
+    await api.post(`/hexagon/colour`, {
       MatchingHexagon: matchingHexagon,
       Points: num1 - num2,
     });
+    router.push("/");
   }
 
   async function submit(file) {
