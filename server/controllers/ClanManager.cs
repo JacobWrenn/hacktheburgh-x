@@ -4,8 +4,6 @@ using MongoDB.Bson;
 
 using MongoDB.Driver;
 
-using System.Text.Json;
-
 namespace Controllers;
 
 public class ClanRank {
@@ -41,6 +39,10 @@ public class ClanManager(IMongoDatabase db) {
     var user = await _users.Find(user => user.Username == session.GetString("username")).FirstAsync();
     var clan = await _clans.Find(clan => clan.Id == user.ClanId).FirstAsync();
 
+    if (clan == null) {
+      return 0;
+    }
+
     // Add the points of every member
     var clanPoints = 0;
     var clanMembers = await _users.Find(user => user.ClanId == clan.Id).ToListAsync();
@@ -58,17 +60,15 @@ public class ClanManager(IMongoDatabase db) {
 
   // Generate the clan leaderboard
   // Return [{rank: 1, guild: "Thomases mum", points: 5}, ...]
-  public async Task<string> GetClanLeaderboard(HttpContext ctx) {
+  public async Task<List<ClanRank>> GetClanLeaderboard(HttpContext ctx) {
     var session = ctx.Session;
     await session.LoadAsync();
-    var user = await _users.Find(user => user.Username == session.GetString("username")).FirstAsync();
     var clans = await _clans.Find(_ => true).ToListAsync();
 
     List<ClanRank> ClanRanks = new List<ClanRank>();
 
-    if (user == null || clans == null) {
-      string json = JsonSerializer.Serialize(ClanRanks);
-      return json;
+    if (clans == null) {
+      return ClanRanks;
     }
 
     foreach (var clan in clans) {
@@ -98,13 +98,12 @@ public class ClanManager(IMongoDatabase db) {
     }
 
     // Return JSON array of clan leaderboards
-    string jsonString = JsonSerializer.Serialize(ClanRanks);
-    return jsonString;
+    return ClanRanks;
   }
 
   public async Task<List<string>> GetClanNames() {
     var clans = await _clans.Find(_ => true).ToListAsync();
-    
+
     List<string> clanNames = new List<string>();
     foreach (var clan in clans) {
       clanNames.Add(clan.Name);

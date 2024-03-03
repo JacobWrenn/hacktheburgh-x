@@ -56,8 +56,14 @@ app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
 app.MapGet("/hexagon/colours", () => litterManager.GetHexagonColours());
 
 // Clan Routes
-app.MapGet("/clan/points", (HttpContext ctx) => clanManager.GetClanPoints(ctx));
-app.MapGet("/clan/leaderboard", async (HttpContext ctx) => await clanManager.GetClanLeaderboard(ctx));
+app.MapGet("/clan/points", async (HttpContext ctx) => {
+  var ClanPoints = await clanManager.GetClanPoints(ctx);
+  return (int) ClanPoints;
+});
+app.MapGet("/clan/leaderboard", async (HttpContext ctx) => {
+  var LeaderboardList = await clanManager.GetClanLeaderboard(ctx);
+  return (object) LeaderboardList;
+});
 app.MapGet("/clan/list", async () => await clanManager.GetClanNames());
 
 app.UseSession();
