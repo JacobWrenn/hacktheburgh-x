@@ -1,7 +1,13 @@
+"use client";
+
+import useSWR from "swr";
+
 
 
 export default function Home() {
-    const leaderboard = [{rank: 1, guild: 'Thimases mum', points: 5}];
+  const { data, error, isLoading } = useSWR("/clan/leaderboard");
+  if (isLoading) return <></>;
+
   return (
     <div className="h-full flex items-center justify-center bg-gradient-to-t from-slate-400 from-10% to-90% to-amber-500">
       <div className=" bg-gradient-to-r from-cyan-50 to-cyan-100 rounded-lg px-8 py-4 w-80">
@@ -14,10 +20,10 @@ export default function Home() {
             <th className="border border-gray-700">Guild</th>
             <th className="border border-gray-700">Hexagons</th>
           </thead>
-          {leaderboard.map(({rank, guild, points}) => <tr key={guild}>
-            <td className="border border-gray-700">{rank}</td>
-            <td className="border border-gray-700">{guild}</td>
-            <td className="border border-gray-700">{points}</td>
+          {data.map((row: any) => <tr key={row.guild}>
+            <td className="border border-gray-700">{row.rank}</td>
+            <td className="border border-gray-700">{row.guild}</td>
+            <td className="border border-gray-700">{row.points}</td>
           </tr>)}
         </table>
       </div>

@@ -3,7 +3,7 @@ export default function Home() {
     <div className="min-h-screen items-center justify-center bg-gradient-to-r from-cyan-50 to-cyan-100 text-gray-700">
       <h1 className="text-2xl text-center font-bold p-8">Upload Photographs</h1>
 
-      <div className="bg-gray-200 rounded-lg px-8 py-4 w-80">
+      <div>
         <ul className="flex flex-col justify-center items-center text-gray-700">
           <li className="text-2xl pt-8">Before Photograph</li>
           <li>
@@ -16,7 +16,7 @@ export default function Home() {
           </li>
         </ul>
       </div>
-      <div className="bg-gray-200 rounded-lg px-8 py-4 w-80">
+      <div>
         <ul className="flex flex-col justify-center items-center text-gray-700">
           <li className="text-2xl pt-8">After Photograph</li>
           <li>
