@@ -59,7 +59,7 @@ public class UserManager(IMongoDatabase db) {
     await session.CommitAsync();
   }
 
-  public async Task<string> GetProfile(HttpContext ctx) {
+  public async Task<Profile> GetProfile(HttpContext ctx) {
     var session = ctx.Session;
     await session.LoadAsync();
     var username = session.GetString("username");
