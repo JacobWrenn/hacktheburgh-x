@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Don't commit temporary object files
+obj
+
 # dotenv files
 .env
 
