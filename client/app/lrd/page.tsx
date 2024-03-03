@@ -14,7 +14,7 @@ export default function Home() {
             <th className="border border-gray-700">Guild</th>
             <th className="border border-gray-700">Hexagons</th>
           </thead>
-          {leaderboard.map(({rank, guild, points}) => <tr>
+          {leaderboard.map(({rank, guild, points}) => <tr key={guild}>
             <td className="border border-gray-700">{rank}</td>
             <td className="border border-gray-700">{guild}</td>
             <td className="border border-gray-700">{points}</td>
