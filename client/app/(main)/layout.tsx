@@ -9,7 +9,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data, error, isLoading } = useSwr("/api/user");
+  const { data, error, isLoading } = useSwr("/user");
 
   if (isLoading) return <></>;
 

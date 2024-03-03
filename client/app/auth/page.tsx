@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 export default function Auth() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { data, error, isLoading, mutate } = useSwr("/api/user");
+  const { data, error, isLoading, mutate } = useSwr("/user");
 
   async function login() {
     await api.post("/user/login", { Username: username, Password: password });
