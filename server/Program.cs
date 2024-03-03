@@ -47,6 +47,10 @@ app.MapGet("/user", (Delegate)userManager.IsLoggedIn);
 app.MapGet("/logout", userManager.LogOut);
 
 // User Profile Routes
+app.MapGet("/user/profile", async (HttpContext ctx) => {
+  var UserProfile = await userManager.GetProfile(ctx);
+  return (object) UserProfile;
+});
 
 // Hexagon Routes
 app.MapPost("/hexagon/colour", async (HttpContext ctx, int h3Index) => {
