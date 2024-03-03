@@ -130,10 +130,10 @@ const Map = (props) => {
 
   return (
     <div>
-      <h3>UK Hexagons</h3>
+      
       {LatLongSet?
       <MapContainer center={LatLong} zoom={zoom} style={{ height: '20em', width: '100%' }}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors"/>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
       {/* Add the GeoJSON layer */}
       {Map ? <GeoJSON data={Map} key="j" style={hexStyle} />: "not working 😅"}
       <Marker position={LatLong}><Popup>You</Popup></Marker>

@@ -7,7 +7,7 @@ import { SWRConfig } from "swr";
 const inter = Inter({ subsets: ["latin"] });
 
 async function fetchApi(endpoint: string, options?: RequestInit) {
-  return fetch(endpoint, options).then((res) => res.json());
+  return fetch("/api"+endpoint, options).then((res) => res.json());
 }
 
 export default function RootLayout({
