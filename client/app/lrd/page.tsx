@@ -4,7 +4,7 @@ export default function Home() {
     const leaderboard = [{rank: 1, guild: 'Thimases mum', points: 5}];
   return (
     <div className="h-full flex items-center justify-center bg-gradient-to-t from-slate-400 from-10% to-90% to-amber-500">
-      <div className=" bg-gray-200 rounded-lg px-8 py-4 w-80">
+      <div className=" bg-gradient-to-r from-cyan-50 to-cyan-100 rounded-lg px-8 py-4 w-80">
         <h1 className="text-xl font-bold text-center mb-4 text-gray-700">
           Leaderboard
         </h1>
